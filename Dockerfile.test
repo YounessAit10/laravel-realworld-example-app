@@ -1,0 +1,13 @@
+FROM gitea.okami101.io/okami101/frankenphp:8.5
+
+USER root
+
+WORKDIR /app
+
+COPY . .
+
+RUN composer install \
+    --no-interaction \
+    --prefer-dist
+
+CMD ["php", "artisan", "test"]
