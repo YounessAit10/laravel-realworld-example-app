@@ -14,20 +14,19 @@ ENV APP_ENV=prod
 
 WORKDIR /app
 
-COPY  app app/
-COPY  config config/
-COPY  database database/
-COPY  resources resources/
+COPY --chown=${USER}:${USER} app app/
+COPY --chown=${USER}:${USER} config config/
+COPY --chown=${USER}:${USER} database database/
+COPY --chown=${USER}:${USER} resources resources/
 COPY --chown=${USER}:${USER} public public/
 COPY --chown=${USER}:${USER} bootstrap bootstrap/
 COPY --chown=${USER}:${USER} storage storage/
-COPY artisan composer.json composer.lock ./
+COPY --chown=${USER}:${USER} artisan composer.json composer.lock ./
 
 RUN \
-    composer install --no-dev --optimize-autoloader; \
-    php artisan octane:install --server=frankenphp -n; \
-    php artisan storage:link; \
-    php artisan route:cache; \
+    composer install --no-dev --optimize-autoloader && \
+    php artisan storage:link && \
+    php artisan route:cache && \
     php artisan view:cache
 
-CMD ["php", "artisan", "octane:frankenphp", "--host=0.0.0.0", "--port=8000"]
+CMD ["frankenphp", "php-server", "-r", "public/", "--listen=:8000"]

@@ -1,18 +1,50 @@
 services:
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    ports:
+      - "8000:8000"
+
+    env_file:
+      - .env
+
+    depends_on:
+      db:
+        condition: service_healthy
+
   db:
     image: postgres:18
+
     environment:
       POSTGRES_PASSWORD: main
       POSTGRES_USER: main
       POSTGRES_DB: main
+
     ports:
       - "5433:5432"
 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U main -d main"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   db_test:
     image: postgres:18
+
     environment:
       POSTGRES_PASSWORD: main
       POSTGRES_USER: main
       POSTGRES_DB: main
+
     ports:
       - "5434:5432"
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U main -d main"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
