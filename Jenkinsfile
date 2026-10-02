@@ -106,12 +106,10 @@ pipeline {
                         --scanners vuln \
                         --severity HIGH,CRITICAL \
                         --exit-code 1 \
-                        <TON_IMAGE>
+                        laravel-realworld-app:$BUILD_NUMBER
                 '''
             }
         }
-
-
 
         stage('Verify') {
             steps {
