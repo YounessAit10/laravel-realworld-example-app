@@ -93,6 +93,17 @@ pipeline {
             }
         }
 
+        stage('Check Docker Image') {
+            steps {
+                sh '''
+                    echo "=== Images Docker disponibles ==="
+                    docker images
+                    echo "=== Vérification de l'image ==="
+                    docker image inspect laravel-realworld-app:$BUILD_NUMBER
+                '''
+            }
+        }
+
         stage('Trivy Scan') {
             steps {
                 sh '''
@@ -100,12 +111,13 @@ pipeline {
 
                     docker run --rm \
                         -v /var/run/docker.sock:/var/run/docker.sock \
+                        -v trivy-cache:/root/.cache/ \
                         aquasec/trivy:latest \
                         image \
-                        --timeout 10m \
+                        --timeout 15m \
                         --scanners vuln \
                         --severity HIGH,CRITICAL \
-                        --exit-code 0 \
+                        --exit-code 1 \
                         laravel-realworld-app:$BUILD_NUMBER
                 '''
             }
