@@ -9,37 +9,15 @@ pipeline {
             }
         }
 
-        stage('Build Test Image') {
-            steps {
-                sh '''
-                    docker build \
-                        -t laravel-test:$BUILD_NUMBER \
-                        .
-                '''
-            }
-        }
-
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    def scannerHome = tool 'SonarScanner'
-
-                    withSonarQubeEnv('SonarQube') {
-                        sh """
-                            ${scannerHome}/bin/sonar-scanner
-                        """
-                    }
-                }
-            }
-        }
-
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
+        // stage('Build Test Image') {
+        //     steps {
+        //         sh '''
+        //             docker build \
+        //                 -t laravel-test:$BUILD_NUMBER \
+        //                 .
+        //         '''
+        //     }
+        // }
 
         stage('GitLeaks') {
             steps {
@@ -80,6 +58,58 @@ pipeline {
                 '''
             }
         }
+
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    def scannerHome = tool 'SonarScanner'
+
+                    withSonarQubeEnv('SonarQube') {
+                        sh """
+                            ${scannerHome}/bin/sonar-scanner
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Build Production Image') {
+            steps {
+                sh '''
+                    echo "=== Build image de production ==="
+
+                    docker build \
+                        -t laravel-realworld-app:$BUILD_NUMBER \
+                        .
+                '''
+            }
+        }
+
+        stage('Trivy Scan') {
+            steps {
+                sh '''
+                    echo "=== Scan de sécurité avec Trivy ==="
+
+                    docker run --rm \
+                        -v /var/run/docker.sock:/var/run/docker.sock \
+                        aquasec/trivy:latest \
+                        image \
+                        --severity HIGH,CRITICAL \
+                        --exit-code 1 \
+                        laravel-test:$BUILD_NUMBER
+                '''
+            }
+        }
+
+
 
         stage('Verify') {
             steps {
