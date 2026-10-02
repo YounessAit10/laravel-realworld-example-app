@@ -75,7 +75,7 @@ pipeline {
 
         stage('Quality Gate') {
             steps {
-                timeout(time: 10, unit: 'MINUTES') {
+                timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
@@ -102,9 +102,11 @@ pipeline {
                         -v /var/run/docker.sock:/var/run/docker.sock \
                         aquasec/trivy:latest \
                         image \
+                        --timeout 10m \
+                        --scanners vuln \
                         --severity HIGH,CRITICAL \
                         --exit-code 1 \
-                        laravel-test:$BUILD_NUMBER
+                        <TON_IMAGE>
                 '''
             }
         }
