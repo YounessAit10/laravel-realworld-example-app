@@ -1,9 +1,7 @@
 services:
 
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ${DOCKERHUB_USERNAME}/laravel-realworld-app:${IMAGE_TAG}
 
     ports:
       - "8000:8000"
