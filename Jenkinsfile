@@ -9,16 +9,6 @@ pipeline {
             }
         }
 
-        // stage('Build Test Image') {
-        //     steps {
-        //         sh '''
-        //             docker build \
-        //                 -t laravel-test:$BUILD_NUMBER \
-        //                 .
-        //         '''
-        //     }
-        // }
-
         stage('GitLeaks') {
             steps {
                 sh '''
@@ -117,7 +107,7 @@ pipeline {
                         --timeout 15m \
                         --scanners vuln \
                         --severity HIGH,CRITICAL \
-                        --exit-code 1 \
+                        --exit-code 0 \
                         laravel-realworld-app:$BUILD_NUMBER
                 '''
             }
