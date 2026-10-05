@@ -146,6 +146,26 @@ pipeline {
             }
         }
 
+        stage('Deploy with Docker Compose') {
+            steps {
+                sh '''
+                    echo "=== Déploiement Docker Compose ==="
+
+                    export IMAGE_TAG=$BUILD_NUMBER
+
+                    docker compose down
+
+                    docker compose pull
+
+                    docker compose up -d
+
+                    echo "=== Vérification du déploiement ==="
+
+                    docker compose ps
+                '''
+            }
+        }
+
     }
 
     post {
