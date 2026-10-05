@@ -149,9 +149,13 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 sh '''
-                    echo "=== Déploiement Docker Compose ==="
+                    echo "=== Déploiement avec Docker Compose ==="
 
                     export IMAGE_TAG=$BUILD_NUMBER
+                    export DOCKERHUB_USERNAME=$DOCKERHUB_USERNAME
+
+                    echo "Image déployée:"
+                    echo "$DOCKERHUB_USERNAME/laravel-realworld-app:$IMAGE_TAG"
 
                     docker compose down
 
@@ -159,8 +163,7 @@ pipeline {
 
                     docker compose up -d
 
-                    echo "=== Vérification du déploiement ==="
-
+                    echo "=== Vérification ==="
                     docker compose ps
                 '''
             }
