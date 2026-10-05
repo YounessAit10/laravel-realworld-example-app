@@ -107,9 +107,42 @@ pipeline {
                         --timeout 15m \
                         --scanners vuln \
                         --severity HIGH,CRITICAL \
-                        --exit-code 0 \
+                        --exit-code 1 \
                         laravel-realworld-app:$BUILD_NUMBER
                 '''
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKERHUB_USERNAME',
+                        passwordVariable: 'DOCKERHUB_PASSWORD'
+                    )
+                ]) {
+                    sh '''
+                        echo "=== Connexion à Docker Hub ==="
+
+                        echo "$DOCKERHUB_PASSWORD" | docker login \
+                            -u "$DOCKERHUB_USERNAME" \
+                            --password-stdin
+
+                        echo "=== Tag de l'image ==="
+
+                        docker tag \
+                            laravel-realworld-app:$BUILD_NUMBER \
+                            $DOCKERHUB_USERNAME/laravel-realworld-app:$BUILD_NUMBER
+
+                        echo "=== Push vers Docker Hub ==="
+
+                        docker push \
+                            $DOCKERHUB_USERNAME/laravel-realworld-app:$BUILD_NUMBER
+
+                        docker logout
+                    '''
+                }
             }
         }
 
