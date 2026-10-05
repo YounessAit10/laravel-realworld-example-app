@@ -146,16 +146,6 @@ pipeline {
             }
         }
 
-        stage('Verify') {
-            steps {
-                sh '''
-                    echo "=== Vérification environnement ==="
-                    git --version
-                    docker --version
-                    docker compose version
-                '''
-            }
-        }
     }
 
     post {
