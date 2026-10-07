@@ -6,6 +6,9 @@ WORKDIR /app
 
 COPY . .
 
+COPY .env.testing .env
+
+
 RUN composer install \
     --no-interaction \
     --prefer-dist
