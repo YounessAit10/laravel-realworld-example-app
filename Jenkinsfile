@@ -88,6 +88,7 @@ pipeline {
                 sh '''
                     echo "=== Images Docker disponibles ==="
                     docker images
+
                     echo "=== Vérification de l'image ==="
                     docker image inspect laravel-realworld-app:$BUILD_NUMBER
                 '''
@@ -148,27 +149,34 @@ pipeline {
 
         stage('Deploy with Docker Compose') {
             steps {
-                sh '''
-                    echo "=== Déploiement avec Docker Compose ==="
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKERHUB_USERNAME',
+                        passwordVariable: 'DOCKERHUB_PASSWORD'
+                    )
+                ]) {
+                    sh '''
+                        echo "=== Déploiement avec Docker Compose ==="
 
-                    export IMAGE_TAG=$BUILD_NUMBER
-                    export DOCKERHUB_USERNAME=$DOCKERHUB_USERNAME
+                        export IMAGE_TAG=$BUILD_NUMBER
 
-                    echo "Image déployée:"
-                    echo "$DOCKERHUB_USERNAME/laravel-realworld-app:$IMAGE_TAG"
+                        echo "Username Docker Hub: $DOCKERHUB_USERNAME"
+                        echo "Image déployée:"
+                        echo "$DOCKERHUB_USERNAME/laravel-realworld-app:$IMAGE_TAG"
 
-                    docker compose down
+                        docker compose down
 
-                    docker compose pull
+                        docker compose pull
 
-                    docker compose up -d
+                        docker compose up -d
 
-                    echo "=== Vérification ==="
-                    docker compose ps
-                '''
+                        echo "=== Vérification ==="
+                        docker compose ps
+                    '''
+                }
             }
         }
-
     }
 
     post {
