@@ -171,7 +171,7 @@ pipeline {
         APP_NAME=Laravel
         APP_ENV=production
         APP_KEY=base64:TA_CLE_ICI
-        APP_DEBUG=true
+        APP_DEBUG=false
         APP_URL=http://localhost:8000
 
         DB_CONNECTION=pgsql
