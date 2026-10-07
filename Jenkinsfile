@@ -165,10 +165,30 @@ pipeline {
                         echo "Image déployée:"
                         echo "$DOCKERHUB_USERNAME/laravel-realworld-app:$IMAGE_TAG"
 
+                        echo "=== Création du fichier .env ==="
+
+                        cat > .env <<EOF
+        APP_NAME=Laravel
+        APP_ENV=production
+        APP_KEY=base64:TA_CLE_ICI
+        APP_DEBUG=true
+        APP_URL=http://localhost:8000
+
+        DB_CONNECTION=pgsql
+        DB_HOST=db
+        DB_PORT=5432
+        DB_DATABASE=main
+        DB_USERNAME=main
+        DB_PASSWORD=main
+        EOF
+
+                        echo "=== Arrêt de l'ancienne version ==="
                         docker compose down
 
+                        echo "=== Téléchargement des images ==="
                         docker compose pull
 
+                        echo "=== Démarrage de l'application ==="
                         docker compose up -d
 
                         echo "=== Vérification ==="
